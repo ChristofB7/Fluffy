@@ -374,6 +374,7 @@ MonoBehaviour:
   _width: 6
   _height: 6
   _tilePrefab: {fileID: 1620143499577536247, guid: 0c6109fde50b6794db79bcb48366e753, type: 3}
+  fluffyChain: 2
   tmp1: {fileID: 1181298797}
   tmp2: {fileID: 180150627}
   selectedi: 0
@@ -838,12 +839,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 586e9648e62b09043901fbcd1e8592eb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  blue1i: 3
-  blue1j: 4
+  blue1i: -1
+  blue1j: -1
   blue2i: -1
   blue2j: -1
-  white1i: 2
-  white1j: 4
+  white1i: -1
+  white1j: -1
   white2i: -1
   white2j: -1
   black1i: -1

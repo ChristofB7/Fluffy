@@ -11,6 +11,7 @@ public class GridManager : MonoBehaviour
 
     [SerializeField] private int _width, _height;
     [SerializeField] private Tile _tilePrefab;
+    public int fluffyChain;
  
     [SerializeField] TextMeshProUGUI tmp1, tmp2;
 
@@ -88,7 +89,7 @@ public class GridManager : MonoBehaviour
         {
             selected = false;
             //selectedFluffy = false;
-            if (IsValid(i, j) && !LastMoved(i, j))
+            if (IsValid(i, j) && !LastMoved(i, j) && DepthFirst(i,j)==fluffyChain)
             {
                 if (IsHome(i, j))
                 {
@@ -96,6 +97,7 @@ public class GridManager : MonoBehaviour
                     {
                         lastMovedi = i; lastMovedj = j;
                         completed++;
+                        fluffyChain--;
                         GetTileAtPosition(i, j).CompleteHouse();
                         if(completed >= numberToWin)
                         {
@@ -200,6 +202,57 @@ public class GridManager : MonoBehaviour
         Debug.Log(arr);
     }
 
+    private int DepthFirst(int i, int j)
+    {
+        int size = 0;
+        int[,] temp = array2D.Clone() as int[,];
 
+        temp[selectedi, selectedj] = 0;
+        temp[i, j] = 1;
+
+        for (int rows=0;rows<=temp.GetLength(0)-1;rows++)
+        {
+            for(int columns = 0; columns <= temp.GetLength(1) - 1; columns++)
+            {
+               size = GetRegionSize(temp, rows, columns);
+                if(size > 0)
+                {
+                    Debug.Log(size.ToString());
+                    return size;
+                }
+            }
+        }
+
+
+        return size;
+
+    }
+
+    private int GetRegionSize(int[,] arr, int row, int column)
+    {
+        int size = 1;
+        if (row<0 || column<0 || row >=arr.GetLength(0) || column >= arr.GetLength(1))
+        {
+            return 0;
+        }
+        if (arr[row, column] == 0|| arr[row, column] == 4)
+        {
+            return 0;
+        }
+        arr[row, column] = 0;
+        for(int r = row-1; r<= row + 1; r++)
+        {
+            for(int c = column-1; c<= column+1; c++)
+            {
+                if(r!=row ||c != column)
+                {
+                    size += GetRegionSize(arr, r, c);
+                }
+            }
+        }
+
+
+        return size;
+    }
 
 }
