@@ -25,7 +25,15 @@ public class FluffySpawner : MonoBehaviour
 
         if(blue1i!=-1 && blue1j != -1)
         {
-            grid.SpawnFluffy(blue1i, blue1j);    
+            grid.SpawnFluffy(blue1i, blue1j,1);    
+        }
+        if (blue2i != -1 && blue2j != -1)
+        {
+            grid.SpawnFluffy(blue2i, blue2j,1);
+        }
+        if (white1i!=-1 && white1j != -1)
+        {
+            grid.SpawnFluffy(white1i, white1j, 2);
         }
     }
 
