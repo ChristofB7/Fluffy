@@ -2,10 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GridManager : MonoBehaviour
 {
     [SerializeField] private Fluffy _fluffyPrefab;
+    [SerializeField] private House _housePrefab;
 
     [SerializeField] private int _width, _height;
     [SerializeField] private Tile _tilePrefab;
@@ -14,6 +16,8 @@ public class GridManager : MonoBehaviour
 
     bool selected, lastFluffy;
     public int selectedi, selectedj;
+    public int numberToWin;
+    private int completed;
     [SerializeField] private Transform _cam;
 
     private Tile[,] tiles;
@@ -53,7 +57,7 @@ public class GridManager : MonoBehaviour
 
         _cam.transform.position = new Vector3((float)_width / 2 - 0.5f, (float)_height / 2 - 0.5f, -10f);
 
-        //ConsoleLog();
+        ConsoleLog();
     }
 
     public Tile GetTileAtPosition(int i, int j)
@@ -65,11 +69,17 @@ public class GridManager : MonoBehaviour
     public void SpawnFluffy(int i, int j, int color)
     {
         GetTileAtPosition(i, j).SpawnFluffy(_fluffyPrefab, color);
-
-        //TODO COLOR
         array2D[i, j] = color;
 
-        //ConsoleLog();
+        ConsoleLog();
+    }
+
+    public void SpawnHouse(int i, int j, int color)
+    {
+        GetTileAtPosition(i, j).SpawnHouse(_housePrefab, color);
+        array2D[i, j] = 4;
+
+        ConsoleLog();
     }
 
     public void SelectFluffy(int i, int j)
@@ -82,7 +92,18 @@ public class GridManager : MonoBehaviour
             {
                 if (IsHome(i, j))
                 {
-                    //complete
+                    if(GetTileAtPosition(i,j).currentColor == GetTileAtPosition(selectedi, selectedj).currentColor)
+                    {
+                        lastMovedi = i; lastMovedj = j;
+                        completed++;
+                        GetTileAtPosition(i, j).CompleteHouse();
+                        if(completed >= numberToWin)
+                        {
+                            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
+                        }
+                        array2D[selectedi, selectedj] = 0;
+                        GetTileAtPosition(selectedi, selectedj).deSpawnFluffy();
+                    }
                 }
                 else
                 {
@@ -95,7 +116,7 @@ public class GridManager : MonoBehaviour
                 GetTileAtPosition(i, j).IllegalMove();
             }
 
-            //ConsoleLog();
+            ConsoleLog();
         }
         else
         {
@@ -178,7 +199,6 @@ public class GridManager : MonoBehaviour
         }
         Debug.Log(arr);
     }
-
 
 
 

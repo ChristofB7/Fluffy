@@ -8,8 +8,9 @@ public class Tile : MonoBehaviour
     [SerializeField] float Seconds = 1.5f;
     [SerializeField] private Color _baseColor, _offsetColor, _selectedColor,_illegalColor;
     [SerializeField] private Color[] colors;
+    [SerializeField] private Sprite[] sprites;
     [SerializeField] private GameObject _highlight;
-    private int currentColor = 0;
+    public int currentColor = 0;
     GridManager grid;
     private SpriteRenderer _renderer;
     public bool fluffy;
@@ -58,6 +59,22 @@ public class Tile : MonoBehaviour
 
     }
 
+    public void SpawnHouse(House _housePrefab, int color)
+    {
+        currentColor = color;
+/*        if (gameObject.transform.childCount == 2)
+        {
+            Destroy(gameObject.transform.GetChild(1).gameObject);
+        }*/
+
+        var fluffyObject = Instantiate(_housePrefab, gameObject.transform.position, Quaternion.identity);
+        fluffyObject.GetComponent<SpriteRenderer>().sprite = sprites[color];
+        fluffyObject.transform.SetParent(gameObject.transform);
+        //Debug.Log("sssspawn" + gameObject.name + "Fluffy: " + fluffy);
+        //justSpawned = true;
+
+    }
+    
     public int deSpawnFluffy()
     {
         //Debug.Log("DeSpawn" + gameObject.name + "Fluffy: " + fluffy);
@@ -71,6 +88,11 @@ public class Tile : MonoBehaviour
         currentColor = 0;
         return temp;
 
+    }
+
+    internal void CompleteHouse()
+    {
+        Debug.Log("One more down!");
     }
 
     private void OnMouseUp()
