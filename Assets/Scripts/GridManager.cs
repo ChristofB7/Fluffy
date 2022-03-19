@@ -11,7 +11,7 @@ public class GridManager : MonoBehaviour
 
     [SerializeField] private int _width, _height;
     [SerializeField] private Tile _tilePrefab;
-    public int fluffyChain;
+    private int fluffyChain;
  
     [SerializeField] TextMeshProUGUI tmp1, tmp2;
 
@@ -34,6 +34,7 @@ public class GridManager : MonoBehaviour
         array2D = new int[_width, _height];
         tiles = new Tile[_width, _height];
         GenerateGrid();
+
     }
     void GenerateGrid()
     {
@@ -58,7 +59,7 @@ public class GridManager : MonoBehaviour
 
         _cam.transform.position = new Vector3((float)_width / 2 - 0.5f, (float)_height / 2 - 0.5f, -10f);
 
-        ConsoleLog();
+       // ConsoleLog();
     }
 
     public Tile GetTileAtPosition(int i, int j)
@@ -72,7 +73,7 @@ public class GridManager : MonoBehaviour
         GetTileAtPosition(i, j).SpawnFluffy(_fluffyPrefab, color);
         array2D[i, j] = color;
 
-        ConsoleLog();
+       // ConsoleLog();
     }
 
     public void SpawnHouse(int i, int j, int color)
@@ -80,7 +81,7 @@ public class GridManager : MonoBehaviour
         GetTileAtPosition(i, j).SpawnHouse(_housePrefab, color);
         array2D[i, j] = 4;
 
-        ConsoleLog();
+        //ConsoleLog();
     }
 
     public void SelectFluffy(int i, int j)
@@ -118,7 +119,7 @@ public class GridManager : MonoBehaviour
                 GetTileAtPosition(i, j).IllegalMove();
             }
 
-            ConsoleLog();
+           // ConsoleLog();
         }
         else
         {
@@ -217,7 +218,7 @@ public class GridManager : MonoBehaviour
                size = GetRegionSize(temp, rows, columns);
                 if(size > 0)
                 {
-                    Debug.Log(size.ToString());
+                    //Debug.Log(size.ToString());
                     return size;
                 }
             }
@@ -235,7 +236,7 @@ public class GridManager : MonoBehaviour
         {
             return 0;
         }
-        if (arr[row, column] == 0|| arr[row, column] == 4)
+        if (arr[row, column] == 0 || arr[row, column] == 4)
         {
             return 0;
         }
@@ -253,6 +254,23 @@ public class GridManager : MonoBehaviour
 
 
         return size;
+    }
+
+    public void countFluffys()
+    {
+        int count = 0;
+        for(int i = 0; i < array2D.GetLength(0) - 1; i++)
+        {
+            for(int j=0; j < array2D.GetLength(1) - 1; j++)
+            {
+                if (IsFluffy(i, j))
+                {
+                    count++;
+                }
+            }
+        }
+
+        fluffyChain =  count;
     }
 
 }

@@ -35,6 +35,12 @@ public class FluffySpawner : MonoBehaviour
         {
             grid.SpawnFluffy(white1i, white1j, 2);
         }
+        if (white2i != -1 && white2j != -1)
+        {
+            grid.SpawnFluffy(white2i, white2j, 2);
+        }
+
+        grid.countFluffys();
     }
 
     // Update is called once per frame

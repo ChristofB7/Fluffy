@@ -574,14 +574,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c7991c51c96d5e9419c3ec4636cb3fb1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  blue1i: 2
-  blue1j: 1
-  blue2i: -1
-  blue2j: -1
+  blue1i: 0
+  blue1j: 0
+  blue2i: 1
+  blue2j: 0
   white1i: 2
-  white1j: 2
-  white2i: -1
-  white2j: -1
+  white1j: 0
+  white2i: 3
+  white2j: 0
   black1i: -1
   black1j: -1
   black2i: -1
