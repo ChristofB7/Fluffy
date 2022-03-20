@@ -1,8 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class GridManager : MonoBehaviour
 {
@@ -11,13 +11,11 @@ public class GridManager : MonoBehaviour
 
     [SerializeField] private int _width, _height;
     [SerializeField] private Tile _tilePrefab;
-    private int fluffyChain;
- 
-    [SerializeField] TextMeshProUGUI tmp1, tmp2;
+    public int fluffyChain;
 
     bool selected, lastFluffy;
     public int selectedi, selectedj;
-    public int numberToWin;
+    private int numberToWin;
     private int completed;
     [SerializeField] private Transform _cam;
 
@@ -27,6 +25,8 @@ public class GridManager : MonoBehaviour
     private GridManager grid;
 
     public int lastMovedi=-1, lastMovedj=-1;
+
+    public Button button;
 
     private void Awake()
     {
@@ -57,9 +57,9 @@ public class GridManager : MonoBehaviour
             }
         }
 
-        _cam.transform.position = new Vector3((float)_width / 2 - 0.5f, (float)_height / 2 - 0.5f, -10f);
+        _cam.transform.position = new Vector3((float)_width / 2 - 3.5f, (float)_height / 2 - 0.5f, -10f);
 
-       // ConsoleLog();
+       ConsoleLog();
     }
 
     public Tile GetTileAtPosition(int i, int j)
@@ -73,7 +73,7 @@ public class GridManager : MonoBehaviour
         GetTileAtPosition(i, j).SpawnFluffy(_fluffyPrefab, color);
         array2D[i, j] = color;
 
-       // ConsoleLog();
+       ConsoleLog();
     }
 
     public void SpawnHouse(int i, int j, int color)
@@ -90,7 +90,7 @@ public class GridManager : MonoBehaviour
         {
             selected = false;
             //selectedFluffy = false;
-            if (IsValid(i, j) && !LastMoved(i, j) && DepthFirst(i,j)==fluffyChain)
+            if (IsValid(i, j) && !LastMoved(i, j) && (DepthFirst(i,j, false)==fluffyChain|| IsHome(i, j)))
             {
                 if (IsHome(i, j))
                 {
@@ -100,18 +100,25 @@ public class GridManager : MonoBehaviour
                         completed++;
                         fluffyChain--;
                         GetTileAtPosition(i, j).CompleteHouse();
+                        array2D[i, j] = 3;
                         if(completed >= numberToWin)
                         {
-                            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
+                            button.interactable = true;
+                            //SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
                         }
                         array2D[selectedi, selectedj] = 0;
                         GetTileAtPosition(selectedi, selectedj).deSpawnFluffy();
+                        GetTileAtPosition(selectedi, selectedj).resetColor();
+
+                        CheckIfBroken();
                     }
                 }
                 else
                 {
+                    GetTileAtPosition(selectedi, selectedj).resetColor();
                     MoveFluffy(i, j);
                     lastMovedi = i; lastMovedj = j;
+                    //GetTileAtPosition(i, j).resetColor();
                 }
             }
             else
@@ -119,20 +126,34 @@ public class GridManager : MonoBehaviour
                 GetTileAtPosition(i, j).IllegalMove();
             }
 
-           // ConsoleLog();
+            ConsoleLog();
         }
         else
         {
-            
-            tmp1.text = i.ToString();
-            tmp2.text = j.ToString();
+            if(selectedi !=-1 && selectedj != -1)
+            {
+                GetTileAtPosition(selectedi, selectedj).resetColor();
+            }
             selectedi = i;
             selectedj = j;
             selected = true;
+            GetTileAtPosition(selectedi, selectedj).selectedColor();
             //selectedFluffy = array2D[i,j]==1;
         }
     }
 
+    private void CheckIfBroken()
+    {
+        if(DepthFirst(selectedi, selectedj, true) == fluffyChain)
+        {
+
+        }
+        else
+        {
+            redFluffys();
+        }
+        
+    }
 
     private bool LastMoved(int i, int j)
     {
@@ -146,7 +167,10 @@ public class GridManager : MonoBehaviour
     {
         if(selectedi!=i && selectedj != j)
         {
-            return true;
+            if((selectedi==i+1 || selectedi==i-1)&&(selectedj == j + 1 || selectedj == j - 1))
+            {
+                return true;
+            }
         }
 
 
@@ -155,7 +179,7 @@ public class GridManager : MonoBehaviour
 
     private bool IsFluffy(int i, int j)
     {
-        if(array2D[i,j]==0 || array2D[i, j] == 4)
+        if(array2D[i,j]==0 || array2D[i, j] == 4 || array2D[i, j] == 3)
         {
             return false;
         }
@@ -178,7 +202,6 @@ public class GridManager : MonoBehaviour
     private void MoveFluffy(int i, int j)
     {
         //TODO COLOR
-        tmp1.text = ""; tmp2.text = "";
         array2D[selectedi, selectedj] = 0;
         array2D[i, j] = 1;
 
@@ -203,13 +226,16 @@ public class GridManager : MonoBehaviour
         Debug.Log(arr);
     }
 
-    private int DepthFirst(int i, int j)
+    private int DepthFirst(int i, int j, bool home)
     {
-        int size = 0;
         int[,] temp = array2D.Clone() as int[,];
+        int size = 0;
 
-        temp[selectedi, selectedj] = 0;
-        temp[i, j] = 1;
+        if (!home)
+        {
+            temp[selectedi, selectedj] = 0;
+            temp[i, j] = 1;
+        }
 
         for (int rows=0;rows<=temp.GetLength(0)-1;rows++)
         {
@@ -236,7 +262,7 @@ public class GridManager : MonoBehaviour
         {
             return 0;
         }
-        if (arr[row, column] == 0 || arr[row, column] == 4)
+        if (arr[row, column] == 0 || arr[row, column] == 3 || arr[row, column] == 4)
         {
             return 0;
         }
@@ -259,9 +285,9 @@ public class GridManager : MonoBehaviour
     public void countFluffys()
     {
         int count = 0;
-        for(int i = 0; i < array2D.GetLength(0) - 1; i++)
+        for(int i = 0; i < array2D.GetLength(0); i++)
         {
-            for(int j=0; j < array2D.GetLength(1) - 1; j++)
+            for(int j=0; j < array2D.GetLength(1); j++)
             {
                 if (IsFluffy(i, j))
                 {
@@ -271,6 +297,22 @@ public class GridManager : MonoBehaviour
         }
 
         fluffyChain =  count;
+        numberToWin = count;
+    }
+
+    public void redFluffys()
+    {
+        for (int i = 0; i < array2D.GetLength(0); i++)
+        {
+            for (int j = 0; j < array2D.GetLength(1); j++)
+            {
+                if (IsFluffy(i, j))
+                {
+                    GetTileAtPosition(i, j).WrongAnswer();
+                }
+                array2D[i, j] = 0;
+            }
+        }
     }
 
 }

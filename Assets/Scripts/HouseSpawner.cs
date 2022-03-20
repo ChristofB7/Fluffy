@@ -35,6 +35,10 @@ public class HouseSpawner : MonoBehaviour
         {
             grid.SpawnHouse(white1i, white1j, 2);
         }
+        if (white2i != -1 && white2j != -1)
+        {
+            grid.SpawnHouse(white2i, white2j, 2);
+        }
     }
 
     // Update is called once per frame
