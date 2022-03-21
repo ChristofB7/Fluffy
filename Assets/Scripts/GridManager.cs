@@ -28,22 +28,33 @@ public class GridManager : MonoBehaviour
 
     public Button button;
 
+    private float offsetX, offsetY,subtract,add;
+
+    public bool canClick, spawn;
+    private int storedi,storedj,storedcolor;
+
+    //public Canvas canvas;
     private void Awake()
     {
+        //canvas.enabled = false;
         grid = FindObjectOfType<GridManager>();
         array2D = new int[_width, _height];
         tiles = new Tile[_width, _height];
         GenerateGrid();
+        canClick = true;
 
     }
     void GenerateGrid()
     {
+        offsetX = 0; offsetY = 0;subtract = 0;add = 0;
         for (int i = 0; i < _width; i++)
         {
-            for(int j=0; j< _height; j++)
+
+            for (int j=0; j< _height; j++)
             {
+
                 //Spawn Tiles Here
-                var spawnedTile = Instantiate(_tilePrefab, new Vector3(i, j), Quaternion.identity);
+                var spawnedTile = Instantiate(_tilePrefab, new Vector3(offsetX,offsetY), Quaternion.Euler(0,0,0));
                 spawnedTile.name = $"Tile {i} {j}";
 
                 var isOffset = (i % 2 == 0 && j % 2 != 0) || (i % 2 != 0 && j % 2 == 0);
@@ -54,10 +65,17 @@ public class GridManager : MonoBehaviour
 
                 //Create Game Logic here
                 array2D[i, j] = 0;
+                offsetX = offsetX + 1f;
+                offsetY = offsetY + 0.5f;
             }
+            add = add + 0.5f;
+            subtract = subtract - 1f;
+            offsetX = subtract;
+            offsetY = add;
+
         }
 
-        _cam.transform.position = new Vector3((float)_width / 2 - 3.5f, (float)_height / 2 - 0.5f, -10f);
+        _cam.transform.position = new Vector3((float)_width / 2 -6.5f, (float)_height / 2 - 0.5f, -10f);
 
        ConsoleLog();
     }
@@ -107,7 +125,7 @@ public class GridManager : MonoBehaviour
                             //SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
                         }
                         array2D[selectedi, selectedj] = 0;
-                        GetTileAtPosition(selectedi, selectedj).deSpawnFluffy();
+                        GetTileAtPosition(selectedi, selectedj).deSpawnFluffyFromHome();
                         GetTileAtPosition(selectedi, selectedj).resetColor();
 
                         CheckIfBroken();
@@ -115,9 +133,18 @@ public class GridManager : MonoBehaviour
                 }
                 else
                 {
+
                     GetTileAtPosition(selectedi, selectedj).resetColor();
                     MoveFluffy(i, j);
                     lastMovedi = i; lastMovedj = j;
+                    //set all other highlights to false
+                    
+
+
+                    //GetTileAtPosition(i, j).SetHighlightActive();
+                    //set highlight to true;
+
+
                     //GetTileAtPosition(i, j).resetColor();
                 }
             }
@@ -201,12 +228,16 @@ public class GridManager : MonoBehaviour
 
     private void MoveFluffy(int i, int j)
     {
-        //TODO COLOR
+        
         array2D[selectedi, selectedj] = 0;
         array2D[i, j] = 1;
+        AnimateFluffy(i, j);
+        //canvas.enabled = true;
 
-        int color = GetTileAtPosition(selectedi, selectedj).deSpawnFluffy();
-        GetTileAtPosition(i, j).SpawnFluffy(_fluffyPrefab, color);
+        //int color = GetTileAtPosition(selectedi, selectedj).deSpawnFluffy();
+        storedi = i;storedj = j;storedcolor = GetTileAtPosition(selectedi, selectedj).getColor();
+        
+        //GetTileAtPosition(i, j).SpawnFluffy(_fluffyPrefab, color);
     }
 
     public void ConsoleLog()
@@ -223,7 +254,7 @@ public class GridManager : MonoBehaviour
             }
             arr = arr + line + "\n";
         }
-        Debug.Log(arr);
+        //Debug.Log(arr);
     }
 
     private int DepthFirst(int i, int j, bool home)
@@ -315,4 +346,43 @@ public class GridManager : MonoBehaviour
         }
     }
 
+    public void AnimateFluffy(int i, int j)
+    {
+        Debug.Log("animating: " + "Selected i,j" + selectedi + "," + selectedj + "to i,j: " + i + "," + j);
+        if(selectedi +1 == i&& selectedj +1 == j){
+            GetTileAtPosition(selectedi, selectedj).Animate("up");
+        }
+        else if (selectedi - 1 == i && selectedj + 1 == j)
+        {
+            GetTileAtPosition(selectedi, selectedj).Animate("right");
+        }
+        else if (selectedi - 1 == i && selectedj - 1 == j)
+        {
+            GetTileAtPosition(selectedi, selectedj).Animate("down");
+        }
+        else if (selectedi + 1 == i && selectedj - 1 == j)
+        {
+            GetTileAtPosition(selectedi, selectedj).Animate("left");
+        }
+    }
+
+    public void Update()
+    {
+        if (spawn)
+        {
+            if (storedi != -1 && storedj != -1 && storedcolor != -1)
+            {
+                spawn = false;
+                SpawnFluffyFromStored();
+                
+                storedi = -1; storedj = -1; storedcolor = -1;
+            }
+        }
+    }
+
+    private void SpawnFluffyFromStored()
+    {
+        SpawnFluffy(storedi, storedj, storedcolor);
+        //GetTileAtPosition(storedi, storedj).SetHighlightActive();
+    }
 }

@@ -10,6 +10,7 @@ public class AudioManager : MonoBehaviour
 {
     public AudioMixer audioMixer;
     [SerializeField] AudioSource themeSource;
+    [SerializeField] AudioSource RealthemeSource;
     [SerializeField] AudioClip themeClip;
 
     public static AudioManager instance;
@@ -33,8 +34,15 @@ public class AudioManager : MonoBehaviour
     {
         float volume = PlayerPrefs.GetFloat("volume", 0.5f);
         audioMixer.SetFloat("volume", Mathf.Log10(volume) * 20);
+        RealthemeSource.Play();
+
+    }
+
+    public void playNext()
+    {
+        RealthemeSource.Stop();
         themeSource.Play();
-         
+        
     }
 
 
